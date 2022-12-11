@@ -1,0 +1,9 @@
+node_modules
+
+.serverless
+
+env.develop.json
+env.prod.json
+.env
+
+docker-compose.yaml

@@ -1,0 +1,124 @@
+org: ticketrust
+app: billeterie
+service: billeterie-backend
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  stage: develop
+  runtime: nodejs18.x
+  profile: ticketrust
+  environment: ${file(env.${opt:stage, self:provider.stage}.json)}
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 'lambda:InvokeFunction'
+            - 'lambda:UpdateFunctionConfiguration'
+            - 'lambda:GetFunction'
+            - 'lambda:listAliases'
+            - 'lambda:listVersionsByFunction'
+            - 'lambda:deleteFunction'
+            - 'lambda:listLayerVersions'
+            - 'lambda:GetLayerVersion'
+            - 'lambda:deleteLayerVersion'
+          Resource:
+            - '*'
+        # Allow functions to read/write objects in a bucket
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 'sqs:*'
+          Resource:
+            - '*'
+
+functions:
+  api:
+    handler: src/api/server.server
+    events:
+      - httpApi: '*'
+    layers:
+      - ${file(env.${opt:stage, self:provider.stage}.json):LAMBDA_HANDLER_LAYER_ARN}
+
+  activityMonitor:
+    handler: src/lambdas/event_monitors/activity_monitor.activity_monitor
+    timeout: 10
+    memorySize: 128
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - activityMonitor
+              - Arn
+    layers:
+      - ${file(env.${opt:stage, self:provider.stage}.json):LAMBDA_HANDLER_LAYER_ARN}
+  
+  ethEventMonitor:
+    handler: src/lambdas/event_monitors/event_monitor.event_monitor
+    timeout: 10
+    memorySize: 128
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - ethEventMonitor
+              - Arn
+    layers:
+      - ${file(env.${opt:stage, self:provider.stage}.json):LAMBDA_HANDLER_LAYER_ARN}
+
+  eventCreatedProcessor:
+    handler: src/lambdas/event_processors/event_created_processor.event_created_processor
+    timeout: 15
+    memorySize: 128
+    events:
+      - schedule: rate(2 minutes)
+    layers:
+      - ${file(env.${opt:stage, self:provider.stage}.json):LAMBDA_HANDLER_LAYER_ARN}
+
+  offchainDataProcessor:
+    handler: src/lambdas/event_processors/offchain_data_processor.offchain_data_processor
+    timeout: 15
+    memorySize: 128
+    events:
+      - schedule: rate(2 minutes)
+    layers:
+      - ${file(env.${opt:stage, self:provider.stage}.json):LAMBDA_HANDLER_LAYER_ARN}
+
+  ticketMintedProcessor:
+    handler: src/lambdas/event_processors/ticket_minted_processor.ticket_minted_processor
+    timeout: 15
+    memorySize: 128
+    events:
+      - schedule: rate(2 minutes)
+    layers:
+      - ${file(env.${opt:stage, self:provider.stage}.json):LAMBDA_HANDLER_LAYER_ARN}
+
+plugins:
+  - serverless-plugin-typescript
+
+package:
+  patterns:
+    - '!.env/**'
+    - '!node_modules/**'
+
+custom:
+  serverlessPluginTypescript:
+    tsConfigFileLocation: './tsconfig.json'
+
+resources:
+ Resources:
+    activityMonitor:
+     Type: "AWS::SQS::Queue"
+     Properties:
+       QueueName: "${opt:stage, self:provider.stage}_activity_monitor"
+       VisibilityTimeout: 30
+    ethEventMonitor:
+     Type: "AWS::SQS::Queue"
+     Properties:
+       QueueName: "${opt:stage, self:provider.stage}_ethereum_event_monitor"
+       VisibilityTimeout: 30

@@ -1,24 +1,12 @@
 import { ethers } from "ethers";
-import {
-  contract_addresses,
-  contract_creation_block,
-} from "../../config/chain_config";
-import {
-  add_indexed_chain_event,
-  get_latest_event_scanned_by_event_and_network,
-} from "../../db/indexed_chain_event";
+import { contract_addresses, contract_creation_block } from "../../config/chain_config";
+import { add_indexed_chain_event, get_latest_event_scanned_by_event_and_network } from "../../db/indexed_chain_event";
 import { get_network_by_name } from "../../db/networks";
 import { getClient } from "../../db/_connection";
 import { IndexedChainEvent } from "../../db/_models";
-import { get_past_events } from "../../helpers/web3_events";
-import { event_created_processor } from "../event_processors/event_created_processor";
-import { offchain_data_processor } from "../event_processors/offchain_data_processor";
-import { ticket_minted_processor } from "../event_processors/ticket_minted_processor";
-import {
-  LambdaClient,
-  InvokeCommand,
-  InvokeCommandInput,
-} from "@aws-sdk/client-lambda";
+import { get_past_events } from "../../helpers/web3/web3_events";
+import { invoke_lambda } from "../../helpers/aws/lambda";
+import { get_message_from_event } from "../../helpers/aws/sqs";
 
 const event_to_processor = {
   'EventCreated': 'eventCreatedProcessor',
@@ -27,9 +15,11 @@ const event_to_processor = {
 };
 
 async function event_monitor(event: {}, context: {}) {
-  const records = event["Records"];
-  const body = JSON.parse(records[0]["body"]);
-  const message = body["MessageBody"];
+  const message = get_message_from_event(event)
+  
+  if (!message) {
+    throw 'No message found in event'
+  }
 
   const event_name = message["event_name"];
   const network_name = message["network_name"];
@@ -89,14 +79,11 @@ async function event_monitor(event: {}, context: {}) {
 
   await getClient().close();
  
-  const lambda = new LambdaClient({});
-  console.log("Invoking: ", event_to_processor[event_name])
-
-  const command = new InvokeCommand({
-    FunctionName: `billeterie-backend-${env}-${event_to_processor[event_name]}`,
-    InvocationType: 'RequestResponse',
-  })
-  await lambda.send(command);
+  const invoked_lambda = await invoke_lambda(event_to_processor[event_name])
+  
+  console.log(`\n Lambda ${event_to_processor[event_name]} invoked. \n
+              Status Code: ${invoked_lambda.StatusCode}`
+  )
 
 }
 

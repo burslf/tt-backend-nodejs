@@ -1,5 +1,5 @@
 import { ethers } from "ethers"
-import { block_interval_per_chain } from "../config/chain_config";
+import { block_interval_per_chain } from "../../config/chain_config";
 
 interface BlockEpoch {
     from_block: number,

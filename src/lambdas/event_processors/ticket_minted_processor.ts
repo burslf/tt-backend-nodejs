@@ -15,6 +15,7 @@ async function ticket_minted_processor(event: {}, context: {})  {
         }
 
         console.log("UNPROCESSED EVENTS: ", unprocessed_events)
+        
         for (let unprocessed_event of unprocessed_events) {
             const unprocessed_event_id = unprocessed_event.dictionary_attributes['id']
             const created_event = await get_created_event(Number(unprocessed_event_id));

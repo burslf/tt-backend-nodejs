@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 import { BilleterieInstance } from "@burslf/tt-contracts";
 import { get_block_epochs } from './web3_blocks';
 import { get_contract_infos } from './web3_contract';
-import { Network } from '../db/_models';
+import { Network } from '../../db/_models';
 
 const get_past_events = async (provider: ethers.providers.Provider, network: Network, event_name: string, from_block: number) => {
     const contractInfos = get_contract_infos(provider, network)

@@ -1,9 +1,8 @@
 import { get_unprocessed_events_by_network, set_event_completed } from "../../db/indexed_chain_event";
 import { get_all_networks } from "../../db/networks";
 import { update_created_event } from '../../db/created_event';
-import { get_offchain_uri } from "../../contracts/billeterie_functions";
 import { ethers } from "ethers";
-import { get_contract_infos } from "../../helpers/web3_contract";
+import { get_contract_infos } from "../../helpers/web3/web3_contract";
 import { BilleterieInstance } from "@burslf/tt-contracts";
 import { getClient } from "../../db/_connection";
 

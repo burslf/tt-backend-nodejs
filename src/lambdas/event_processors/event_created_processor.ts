@@ -3,7 +3,7 @@ import { get_all_networks } from "../../db/networks";
 import { add_created_event } from '../../db/created_event';
 import { EventCreated } from "../../db/_models";
 import { get_offchain_uri, get_payees } from "../../contracts/billeterie_functions";
-import { get_contract_infos } from '../../helpers/web3_contract';
+import { get_contract_infos } from '../../helpers/web3/web3_contract';
 import { ethers } from "ethers";
 import { BilleterieInstance } from "@burslf/tt-contracts";
 import { getClient } from "../../db/_connection";

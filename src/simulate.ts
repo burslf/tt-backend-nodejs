@@ -6,7 +6,7 @@ import { add_created_event, get_all_created_events, get_created_event } from "./
 import { add_indexed_chain_event, get_latest_event_scanned_by_event_and_network, get_unprocessed_events_by_network, set_event_completed } from "./db/indexed_chain_event";
 import {EventCreated, IndexedChainEvent, Network} from './db/_models';
 import { add_network, get_all_networks, get_network_by_name } from "./db/networks";
-import { get_sqs_message, send_sqs_message } from "./helpers/sqs";
+import { generate_sqs_message, send_sqs_message } from "./helpers/aws/sqs";
 import { activity_monitor } from "./lambdas/event_monitors/activity_monitor";
 import { event_monitor } from "./lambdas/event_monitors/event_monitor";
 import { event_created_processor } from "./lambdas/event_processors/event_created_processor";
@@ -27,9 +27,9 @@ import { ticket_minted_processor } from "./lambdas/event_processors/ticket_minte
 // .catch(e => console.log(e))
 
 (async function() {
-    const message = get_sqs_message('activity_monitor', "Hello YOUU")
+    const message = generate_sqs_message('activity_monitor', "Hello YOUU")
 
-    await send_sqs_message('activity_monitor', JSON.stringify(message))
+    await send_sqs_message('activity_monitor', message)
 })();
 
 // activityMonitor({'Records': [{'body': {}, 'attributes': {}}]}, {})

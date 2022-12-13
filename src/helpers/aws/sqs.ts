@@ -1,6 +1,6 @@
 import { CreateQueueCommand, GetQueueUrlCommand, SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 
-const get_sqs_message = (queue_name: string, message_body: {}) => {
+const generate_sqs_message = (queue_name: string, message_body: {}) => {
     const message = {"Id": `u-${queue_name}`, "MessageBody": message_body}
 
     return message
@@ -41,7 +41,21 @@ const send_sqs_message = async (queue_name: string, message: {}) => {
     }
 }
 
+const get_message_from_event = (event: {}) => {
+    try {
+        const records = event["Records"];
+        const body = JSON.parse(records[0]["body"]);
+        const message = body["MessageBody"];
+        
+        return message
+    }catch(e) {
+        return false
+    }
+}
+
+
 export {
-    get_sqs_message,
-    send_sqs_message
+    generate_sqs_message,
+    send_sqs_message,
+    get_message_from_event
 }

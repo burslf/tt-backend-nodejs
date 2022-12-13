@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { get_sqs_message, send_sqs_message } from '../../helpers/sqs';
+import { generate_sqs_message, send_sqs_message } from '../../helpers/aws/sqs';
 
 const router = express.Router()
 
@@ -14,7 +14,7 @@ router.post('/trigger-monitor', async (req: Request, res: Response) => {
         
         const message_body = {'network_name': network_name, 'event_name': event_to_monitor};
         
-        const message = get_sqs_message(`${network_name.toLowerCase()}_event_monitor`, message_body)
+        const message = generate_sqs_message(`${network_name.toLowerCase()}_event_monitor`, message_body)
 
         await send_sqs_message('activity_monitor', message)
 

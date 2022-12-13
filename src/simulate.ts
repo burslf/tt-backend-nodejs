@@ -2,7 +2,7 @@ import { load_environment_variable } from "./helpers/load_env";
 load_environment_variable('develop')
 
 import { ObjectId, OrderedBulkOperation } from "mongodb";
-import { add_created_event, get_all_created_events } from "./db/created_event";
+import { add_created_event, get_all_created_events, get_created_event } from "./db/created_event";
 import { add_indexed_chain_event, get_latest_event_scanned_by_event_and_network, get_unprocessed_events_by_network, set_event_completed } from "./db/indexed_chain_event";
 import {EventCreated, IndexedChainEvent, Network} from './db/_models';
 import { add_network, get_all_networks, get_network_by_name } from "./db/networks";
@@ -26,11 +26,11 @@ import { ticket_minted_processor } from "./lambdas/event_processors/ticket_minte
 // .then(r => console.log(r))
 // .catch(e => console.log(e))
 
-// (async function() {
-//     const message = get_sqs_message('activity_monitor', "Hello YOUU")
+(async function() {
+    const message = get_sqs_message('activity_monitor', "Hello YOUU")
 
-//     await send_sqs_message('activity_monitor', JSON.stringify(message))
-// })()
+    await send_sqs_message('activity_monitor', JSON.stringify(message))
+})();
 
 // activityMonitor({'Records': [{'body': {}, 'attributes': {}}]}, {})
 
@@ -58,7 +58,8 @@ import { ticket_minted_processor } from "./lambdas/event_processors/ticket_minte
 // })()
 
 (async function() {
-
+    // const event = await get_created_event(19)
+    // console.log(event)
     // const unprocessed_events = await get_unprocessed_events_by_network('638e62523a5d36509aeaef5d', 'EventCreated')
     // console.log(unprocessed_events)
     // await activity_monitor({}, {})
@@ -67,7 +68,7 @@ import { ticket_minted_processor } from "./lambdas/event_processors/ticket_minte
     // await offchain_data_processor({}, {});
     // await ticket_minted_processor({}, {});
 
-    const latest = await get_latest_event_scanned_by_event_and_network('EventCreated', 'ETHEREUM')
-    console.log(latest)
+    // const latest = await get_latest_event_scanned_by_event_and_network('EventCreated', 'ETHEREUM')
+    // console.log(latest)
 })()
 

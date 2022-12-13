@@ -23,7 +23,7 @@ async function event_created_processor(event: {}, context: {})  {
             const contract_infos = get_contract_infos(provider, network)
             const Billeterie = new BilleterieInstance(contract_infos)
             
-            const unprocessed_event_id = unprocessed_event.dictionary_attributes['id']
+            const unprocessed_event_id = Number(unprocessed_event.dictionary_attributes['id'])
             const unprocessed_event_creator = unprocessed_event.dictionary_attributes['owner']
 
             let created_event_shares;

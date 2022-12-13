@@ -10,7 +10,7 @@ async function ticket_minted_processor(event: {}, context: {})  {
         const unprocessed_events = await get_unprocessed_events_by_network(network._id, "TransferSingle")
         
         if (unprocessed_events.length == 0) {
-            console.log("NO EVENT TO PROCESS...")
+            console.log(`No event to process...`)
             return
         }
 
@@ -19,6 +19,10 @@ async function ticket_minted_processor(event: {}, context: {})  {
             const unprocessed_event_id = unprocessed_event.dictionary_attributes['id']
             const created_event = await get_created_event(Number(unprocessed_event_id));
 
+            if (!created_event) {
+                throw `Event not processed yet: ${unprocessed_event}`
+            }
+            
             const tickets_left = created_event.tickets_left - Number(unprocessed_event.dictionary_attributes['value']);
 
             await update_created_event(created_event.event_id! , {'tickets_left': tickets_left} );
@@ -36,7 +40,7 @@ async function ticket_minted_processor(event: {}, context: {})  {
             })
 
             await set_event_completed(unprocessed_event._id!);
-            console.log("Unprocessed event was completed: tickets_left - ", tickets_left)
+            console.log(`Unprocessed event was completed: tickets_left = ${tickets_left}`)
 
         }
     }

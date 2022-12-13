@@ -75,8 +75,8 @@ functions:
     handler: src/lambdas/event_processors/event_created_processor.event_created_processor
     timeout: 15
     memorySize: 128
-    events:
-      - schedule: rate(2 minutes)
+    # events:
+    #   - schedule: rate(2 minutes)
     layers:
       - ${file(env.${opt:stage, self:provider.stage}.json):LAMBDA_HANDLER_LAYER_ARN}
 
@@ -84,8 +84,8 @@ functions:
     handler: src/lambdas/event_processors/offchain_data_processor.offchain_data_processor
     timeout: 15
     memorySize: 128
-    events:
-      - schedule: rate(2 minutes)
+    # events:
+    #   - schedule: rate(2 minutes)
     layers:
       - ${file(env.${opt:stage, self:provider.stage}.json):LAMBDA_HANDLER_LAYER_ARN}
 
@@ -93,8 +93,8 @@ functions:
     handler: src/lambdas/event_processors/ticket_minted_processor.ticket_minted_processor
     timeout: 15
     memorySize: 128
-    events:
-      - schedule: rate(2 minutes)
+    # events:
+    #   - schedule: rate(2 minutes)
     layers:
       - ${file(env.${opt:stage, self:provider.stage}.json):LAMBDA_HANDLER_LAYER_ARN}
 

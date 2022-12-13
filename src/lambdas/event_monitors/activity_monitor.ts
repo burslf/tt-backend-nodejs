@@ -4,18 +4,34 @@ import { get_sqs_message, send_sqs_message } from "../../helpers/sqs";
 
 async function activity_monitor(event: {}, context: {}) {
     try {
-        const networks = await get_all_networks()
         
-        await getClient().close();
+        console.log("EVENT: ", event)
+        const records = event["Records"];
+        const body = JSON.parse(records[0]["body"]);
+        const message = body["MessageBody"];
+        console.log("MESSAGE: ", message)
         
-        const events_to_monitor = [
-            "EventCreated", 
-            "OffchainDataUpdated", 
-            "OptionAdded", 
-            "OptionRemoved", 
-            "TransferSingle" 
-        ]
-    
+        const event_name = message["event_name"];
+        const network_name = message["network_name"];
+
+        let events_to_monitor;
+        let networks;
+
+        if (event_name && network_name) {
+            events_to_monitor = [event_name];
+            networks = [{name: network_name}];
+        }else {
+            networks = await get_all_networks()
+            events_to_monitor = [
+                "EventCreated", 
+                "OffchainDataUpdated", 
+                // "OptionAdded", 
+                // "OptionRemoved", 
+                "TransferSingle" 
+            ]
+            await getClient().close();
+        }
+
         const sqs_event_monitor_name = "event_monitor";
     
         for (let network of networks) {
